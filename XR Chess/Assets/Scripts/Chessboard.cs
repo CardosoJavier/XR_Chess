@@ -87,6 +87,33 @@ public class Chessboard : MonoBehaviour
         RaycastHit info;
         Ray ray = currentCamera.ScreenPointToRay(Input.mousePosition);
 
+        // - - - - - - - Testing - - - - - - - 
+        if (!isWhiteTurn)
+        {
+            ChessPiece testPawn = chessPieces[0, 6];
+
+            if (testPawn != null)
+            {
+                if (testPawn != null && testPawn.team == 1) // Check it's a black piece just to be sure
+                {
+                    MoveTo(testPawn, 0, 5);
+                }
+
+                if (testPawn)
+                {
+                    Plane horizantalPlane = new Plane(Vector3.up, Vector3.up * yOffset);
+                    float distance = 0.0f;
+                    if (horizantalPlane.Raycast(ray, out distance))
+                    {
+                        Vector3 testVector = new Vector3(5, 0, yOffset);
+                        testPawn.SetPosition(testVector);
+                    }
+
+                }
+            }
+        }
+        // - - - - - - - Testing - - - - - - - 
+
         // Mouse (Ray) is on board 
         // Allowed layers to position pieces
         if (Physics.Raycast(ray, out info, 100, LayerMask.GetMask("Tile", "Hover", "Highlight")))
@@ -143,6 +170,7 @@ public class Chessboard : MonoBehaviour
                 Vector2Int previousPosition = new Vector2Int(currentDraggingPiece.currentX, currentDraggingPiece.currentY);
 
                 bool validMove = MoveTo(currentDraggingPiece, hitPosition.x, hitPosition.y);
+
                 // No valid move
                 if (!validMove)
                 {
@@ -384,6 +412,8 @@ public class Chessboard : MonoBehaviour
 
     private bool MoveTo(ChessPiece chessPiece, int x, int y)
     {
+
+
         if (!ContainsValidMove(ref availableMoves, new Vector2Int(x, y)))
         {
             return false;
@@ -441,12 +471,16 @@ public class Chessboard : MonoBehaviour
             }
         }
 
+        // Auto move chess
+
+
         chessPieces[x, y] = chessPiece;
         chessPieces[previousPosition.x, previousPosition.y] = null;
 
         PositionSinglePiece(x, y);
 
         isWhiteTurn = !isWhiteTurn;
+
         moveList.Add(new Vector2Int[] { previousPosition, new Vector2Int(x, y) });
 
         processSpecialMove();
